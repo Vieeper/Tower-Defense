@@ -2,69 +2,134 @@ import pygame
 
 pygame.init()
 
-fenster = pygame.display.set_mode((800,600))
+fenster = pygame.display.set_mode((800, 600))
+clock = pygame.time.Clock()
 
-running = True
+# Farben
+GRUEN = (50, 150, 50)
+BRAUN = (120, 80, 40)
+ROT = (200, 50, 50)
 
+# Gegner
 gegner_x = 25
 gegner_y = 175
 
 geschwindigkeit = 2
 
-# Wegpunkte des braunen Pfades
+# Wegpunkte
+# Der Gegner läuft immer von Punkt zu Punkt.
 wegpunkte = [
-    (300, 175),  # nach rechts
-    (325, 350),  # nach unten
-    (450, 375),  # nach rechts
-    (475, 250),  # nach oben
-    (800, 225)   # nach rechts
+    (325, 175),  # 1. Gerade nach rechts
+    (325, 375),  # 2. Nach unten
+    (475, 375),  # 3. Nach rechts
+    (475, 225),  # 4. Nach oben
+    (800, 225)   # 5. Nach rechts
 ]
 
-aktueller_punkt = 0
+punkt = 0
+
+running = True
 
 while running:
+
+    # Fenster-Ereignisse
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # --------------------------------
-    # Gegner zum nächsten Punkt bewegen
-    # --------------------------------
+    # ==================================
+    # GEGNER BEWEGEN
+    # ==================================
 
-    ziel_x, ziel_y = wegpunkte[aktueller_punkt]
+    ziel_x, ziel_y = wegpunkte[punkt]
 
-    dx = ziel_x - gegner_x
-    dy = ziel_y - gegner_y
+    # Horizontal bewegen
+    if gegner_x != ziel_x:
 
-    # Entfernung zum Ziel
-    entfernung = (dx**2 + dy**2) ** 0.5
+        if gegner_x < ziel_x:
+            gegner_x += geschwindigkeit
 
-    if entfernung < geschwindigkeit:
-        # Ziel erreicht -> nächster Wegpunkt
-        gegner_x = ziel_x
-        gegner_y = ziel_y
+            if gegner_x > ziel_x:
+                gegner_x = ziel_x
 
-        aktueller_punkt += 1
+        else:
+            gegner_x -= geschwindigkeit
 
-        # Wenn das Ende erreicht wurde
-        if aktueller_punkt >= len(wegpunkte):
-            aktueller_punkt = len(wegpunkte) - 1
+            if gegner_x < ziel_x:
+                gegner_x = ziel_x
 
+    # Wenn X stimmt -> vertikal bewegen
+    elif gegner_y != ziel_y:
+
+        if gegner_y < ziel_y:
+            gegner_y += geschwindigkeit
+
+            if gegner_y > ziel_y:
+                gegner_y = ziel_y
+
+        else:
+            gegner_y -= geschwindigkeit
+
+            if gegner_y < ziel_y:
+                gegner_y = ziel_y
+
+    # Ziel erreicht
     else:
-        # Richtung zum Ziel berechnen
-        gegner_x += dx / entfernung * geschwindigkeit
-        gegner_y += dy / entfernung * geschwindigkeit
+        punkt += 1
 
+        # Am Ende wieder zum Anfang
+        if punkt >= len(wegpunkte):
+            punkt = 0
+            gegner_x = 25
+            gegner_y = 175
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    fenster.fill((50, 150, 50))
-    pygame.draw.rect(fenster, (120, 80, 40), (0, 150, 300, 50))
-    pygame.draw.rect(fenster, (120, 80, 40), (300, 150, 50, 250))
-    pygame.draw.rect(fenster, (120, 80, 40), (300, 350, 150, 50))
-    pygame.draw.rect(fenster, (120, 80, 40), (450, 250, 50, 150))
-    pygame.draw.rect(fenster, (120, 80, 40), (450, 200, 350, 50))
-    pygame.draw.circle(fenster, (200, 50, 50), (25, 175), 15)
+    # ==================================
+    # ZEICHNEN
+    # ==================================
+
+    fenster.fill(GRUEN)
+
+    # Brauner Weg
+    pygame.draw.rect(
+        fenster,
+        BRAUN,
+        (0, 150, 300, 50)
+    )
+
+    pygame.draw.rect(
+        fenster,
+        BRAUN,
+        (300, 150, 50, 250)
+    )
+
+    pygame.draw.rect(
+        fenster,
+        BRAUN,
+        (300, 350, 150, 50)
+    )
+
+    pygame.draw.rect(
+        fenster,
+        BRAUN,
+        (450, 250, 50, 150)
+    )
+
+    pygame.draw.rect(
+        fenster,
+        BRAUN,
+        (450, 200, 350, 50)
+    )
+
+    # Gegner
+    pygame.draw.circle(
+        fenster,
+        ROT,
+        (int(gegner_x), int(gegner_y)),
+        15
+    )
+
     pygame.display.flip()
+
+    clock.tick(60)
+
+pygame.quit()
